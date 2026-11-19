@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f1e8">
 <title>MyWorkHub — أرشيف المشاريع</title>
 <meta name="description" content="أرشيف مصغّر للمشاريع في شكل كُتيّب من ثلاث صفحات.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2315171c'/%3E%3Cpath d='M25 20h38l12 12v48H25z' fill='none' stroke='%23f4f1e8' stroke-width='5'/%3E%3Cpath d='M35 50h30M35 62h30' stroke='%232a4dff' stroke-width='5'/%3E%3C/svg%3E">
@@ -36,13 +37,18 @@
   .bar .hint{color:var(--muted)}
   .bar a{border-bottom:1px solid transparent;transition:.2s}
   .bar a:hover{color:var(--blue);border-color:var(--blue)}
+  .bar .links{display:flex;align-items:center;gap:clamp(10px,2.5vw,20px)}
+  .bar .links a,.bar .links button{background:transparent;border:0;padding:4px 0;cursor:pointer;
+    font:inherit;color:inherit;letter-spacing:inherit;line-height:1.4}
+  .bar .links button:hover{color:var(--blue)}
+  .bar .download{color:var(--blue)}
 
   .deck{flex:1;min-height:0;display:grid;place-items:center;padding:clamp(12px,2.5vh,24px) 12px}
   .book{
     position:relative;aspect-ratio:210/297;
-    width:min(92vw, calc((100vh - 132px) * .707));perspective:1400px
+    width:min(94vw, calc((100vh - 132px) * .707));perspective:1400px
   }
-  @supports (height:100dvh){.book{width:min(92vw, calc((100dvh - 132px) * .707))}}
+  @supports (height:100dvh){.book{width:min(94vw, calc((100dvh - 132px) * .707))}}
   .stack{position:absolute;inset:0;background:#e8e4d9;border:1px solid var(--line)}
   .stack.s1{transform:translate(-7px,7px)}
   .stack.s2{transform:translate(-14px,14px);background:#e2ded2}
@@ -64,6 +70,21 @@
   .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
   .foot{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);
     display:flex;justify-content:space-between;font-family:var(--mono);font-size:clamp(8px,2.8cqw,10px);color:var(--muted)}
+
+  /* فهرس */
+  .index h2{margin:0 0 clamp(14px,5cqw,26px);font-size:clamp(30px,12cqw,58px);font-weight:900;line-height:1;letter-spacing:-.03em}
+  .toc-list{display:flex;flex-direction:column;gap:clamp(8px,3cqw,14px)}
+  .toc-item{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;text-align:right;
+    border:1px solid var(--line);background:transparent;color:inherit;cursor:pointer;
+    padding:clamp(9px,3.5cqw,16px);transition:.2s}
+  .toc-item:hover{border-color:var(--blue);background:rgba(42,77,255,.05)}
+  .toc-item .no{font-family:var(--mono);font-size:clamp(14px,5cqw,22px);color:var(--blue);min-width:2.2em}
+  .toc-item .txt{flex:1}
+  .toc-item .txt b{display:block;font-size:clamp(13px,4.4cqw,19px);font-weight:800;line-height:1.3}
+  .toc-item .txt small{display:block;font-family:var(--mono);font-size:clamp(8px,2.8cqw,10px);color:var(--muted);margin-top:3px}
+  .toc-item .ar{font-family:var(--mono);color:var(--muted);font-size:clamp(14px,5cqw,20px)}
+  .index .dl{margin:clamp(14px,5cqw,24px) 0 0;font-family:var(--mono);font-size:clamp(9px,3cqw,11px);color:var(--muted)}
+  .index .dl a{color:var(--blue);border-bottom:1px solid var(--blue)}
 
   /* غلاف */
   .cover .mark{width:clamp(36px,13cqw,58px);height:clamp(36px,13cqw,58px);border:2px solid var(--ink);
@@ -113,8 +134,18 @@
   .dots button.active{background:var(--blue);border-color:var(--blue);transform:scale(1.3)}
 
   @media (max-width:520px){
+    .bar{min-height:50px;padding-top:8px;padding-bottom:8px;
+      padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
     .bar .hint{display:none}
-    .nav button{padding:6px 10px;font-size:10px}
+    .bar .links{gap:12px}
+    .nav{height:64px;padding-bottom:env(safe-area-inset-bottom)}
+    .nav button{padding:11px 14px;font-size:11px;min-height:44px}
+    .dots button{width:14px;height:14px}
+  }
+  @media (max-height:700px){
+    .project .meta dt,.project .meta dd{padding:3px 0}
+    .project .desc{line-height:1.6;margin-bottom:8px}
+    .project .tags{margin-bottom:9px}
   }
   @media (prefers-reduced-motion:reduce){
     *{transition-duration:.01ms!important;animation-duration:.01ms!important}
@@ -126,7 +157,11 @@
 <header class="bar">
   <b>MyWorkHub<i>.</i></b>
   <span class="hint">كُتيّب مصغّر — استخدم الأسهم لتقليب الصفحات</span>
-  <a href="https://github.com/khalidsaif912" target="_blank" rel="noopener">GitHub ↗</a>
+  <span class="links">
+    <button type="button" id="tocBtn">الفهرس ☰</button>
+    <a class="download" href="MyWorkHub.zip" download>تنزيل ↓</a>
+    <a href="https://github.com/khalidsaif912" target="_blank" rel="noopener">GitHub ↗</a>
+  </span>
 </header>
 
 <main class="deck">
@@ -134,8 +169,29 @@
     <div class="stack s2" aria-hidden="true"></div>
     <div class="stack s1" aria-hidden="true"></div>
 
+    <section class="page index" aria-label="الفهرس">
+      <div class="top"><b>MYWORKHUB</b><span>الفهرس</span></div>
+      <div class="body">
+        <h2>الفهرس</h2>
+        <div class="toc-list">
+          <button class="toc-item" type="button" data-go="2">
+            <span class="no">01</span>
+            <span class="txt"><b>استوديو الورق وتخطيط الصور</b><small>أداة طباعة / ملف HTML واحد</small></span>
+            <span class="ar">←</span>
+          </button>
+          <button class="toc-item" type="button" data-go="3">
+            <span class="no">02</span>
+            <span class="txt"><b>صفحة بيضاء</b><small>المشروع القادم — مساحة محجوزة</small></span>
+            <span class="ar">←</span>
+          </button>
+        </div>
+        <p class="dl"><a href="MyWorkHub.zip" download>تنزيل نسخة كاملة من الموقع ↓</a></p>
+      </div>
+      <div class="foot"><span>اختر مشروعاً للانتقال إليه</span><span>00 — 04</span></div>
+    </section>
+
     <section class="page cover active" aria-label="الغلاف">
-      <div class="top"><b>MYWORKHUB</b><span>001 — 003</span></div>
+      <div class="top"><b>MYWORKHUB</b><span>01 — 04</span></div>
       <div class="body">
         <div class="mark" aria-hidden="true"></div>
         <h1><span>أرشيف</span><span class="out">المشاريع</span><span class="bl">رقمياً.</span></h1>
@@ -161,9 +217,10 @@
         <div class="actions">
           <a class="btn solid" href="a4-image-page-professional.html" target="_blank" rel="noopener">جرّب المحرر ↗</a>
           <a class="btn" href="https://github.com/khalidsaif912/MyWorkHub" target="_blank" rel="noopener">الكود ↗</a>
+          <a class="btn" href="MyWorkHub.zip" download>تنزيل الموقع ↓</a>
         </div>
       </div>
-      <div class="foot"><span>HTML / CSS / JS</span><span>02 — 03</span></div>
+      <div class="foot"><span>HTML / CSS / JS</span><span>02 — 04</span></div>
     </section>
 
     <section class="page next" aria-label="المشروع القادم">
@@ -174,7 +231,7 @@
         <p>الفكرة لم تُكتب بعد. ربما أداة، أو تجربة بصرية، أو شيء لا يندرج تحت تصنيف.</p>
         <div class="line" aria-hidden="true"></div>
       </div>
-      <div class="foot"><span>قريباً</span><span>03 — 03</span></div>
+      <div class="foot"><span>قريباً</span><span>03 — 04</span></div>
     </section>
   </div>
 </main>
@@ -182,9 +239,10 @@
 <nav class="nav" aria-label="تنقل بين الصفحات">
   <button type="button" id="prev" aria-label="الصفحة السابقة">السابق ←</button>
   <div class="dots" role="group" aria-label="اختر صفحة">
-    <button type="button" data-go="0" class="active" aria-label="الغلاف"></button>
-    <button type="button" data-go="1" aria-label="المشروع الأول"></button>
-    <button type="button" data-go="2" aria-label="المشروع القادم"></button>
+    <button type="button" data-go="0" aria-label="الفهرس"></button>
+    <button type="button" data-go="1" class="active" aria-label="الغلاف"></button>
+    <button type="button" data-go="2" aria-label="المشروع الأول"></button>
+    <button type="button" data-go="3" aria-label="المشروع القادم"></button>
   </div>
   <button type="button" id="next" aria-label="الصفحة التالية">→ التالي</button>
 </nav>
@@ -195,7 +253,7 @@
     var dots = Array.prototype.slice.call(document.querySelectorAll('.dots button'));
     var prev = document.getElementById('prev');
     var next = document.getElementById('next');
-    var current = 0;
+    var current = 1;
     var timer = null;
 
     function go(index){
@@ -221,7 +279,14 @@
 
     prev.addEventListener('click', function(){ go(current - 1); });
     next.addEventListener('click', function(){ go(current + 1); });
-    dots.forEach(function(d){ d.addEventListener('click', function(){ go(Number(d.dataset.go)); }); });
+    function bindGo(selector){
+      Array.prototype.slice.call(document.querySelectorAll(selector)).forEach(function(b){
+        b.addEventListener('click', function(){ go(Number(b.dataset.go)); });
+      });
+    }
+    bindGo('.dots button');
+    bindGo('.toc-item');
+    document.getElementById('tocBtn').addEventListener('click', function(){ go(0); });
 
     document.addEventListener('keydown', function(e){
       if(e.key === 'ArrowLeft' || e.key === 'ArrowDown' || e.key === 'PageDown'){ e.preventDefault(); go(current + 1); }
@@ -240,8 +305,12 @@
       if(Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)){ go(dx < 0 ? current + 1 : current - 1); }
     }, { passive:true });
 
-    prev.disabled = true;
-    pages.slice(1).forEach(function(p){ p.setAttribute('aria-hidden', 'true'); });
+    prev.disabled = current === 0;
+    next.disabled = current === pages.length - 1;
+    pages.forEach(function(p, i){
+      if(i === current) p.removeAttribute('aria-hidden');
+      else p.setAttribute('aria-hidden', 'true');
+    });
   })();
 </script>
 </body>
