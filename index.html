@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MyWorkHub — أرشيف المشاريع</title>
+<meta name="description" content="أرشيف رقمي غير تقليدي للمشاريع، يبدأ بأداة تصميم أوراق الطباعة وتخطيط الصور.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%2315171c'/%3E%3Cpath d='M25 20h38l12 12v48H25z' fill='none' stroke='%23f4f1e8' stroke-width='5'/%3E%3Cpath d='M35 50h30M35 62h30' stroke='%232a4dff' stroke-width='5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15171c; --paper:#f4f1e8; --accent:#2a4dff; --red:#ff553d;
+    --muted:#76746c; --line:rgba(21,23,28,.22);
+    --ar:"Tajawal","Cairo",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,"Courier New",monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);font-family:var(--ar);
+    overflow-x:hidden;-webkit-font-smoothing:antialiased
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:90;opacity:.045;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  a{color:inherit;text-decoration:none}
+  button{font:inherit}
+  ::selection{background:var(--accent);color:#fff}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+
+  .skip{position:fixed;top:-60px;right:10px;background:var(--ink);color:var(--paper);padding:10px 14px;z-index:200}
+  .skip:focus{top:10px}
+  .dots{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.13;background-image:radial-gradient(var(--ink) .7px, transparent .8px);background-size:24px 24px}
+  .topbar{
+    position:fixed;top:0;left:0;right:0;height:42px;z-index:60;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:0 clamp(14px,3vw,30px);border-bottom:1px solid var(--line);
+    background:rgba(244,241,232,.86);backdrop-filter:blur(10px);
+    font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase
+  }
+  .topbar b{font-weight:600}
+  .topbar .mid{color:var(--muted)}
+  .topbar a{border-bottom:1px solid transparent;transition:.2s}
+  .topbar a:hover{border-color:var(--accent);color:var(--accent)}
+  .cursor{display:none}
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;z-index:1;min-height:100svh;
+    display:grid;grid-template-columns:minmax(0,1fr) 190px;
+    align-items:center;gap:30px;padding:120px clamp(20px,6vw,90px) 90px
+  }
+  .eyebrow{
+    display:flex;align-items:center;gap:12px;font-family:var(--mono);
+    font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)
+  }
+  .eyebrow i{width:34px;height:1px;background:var(--red);display:block}
+  h1{
+    margin:22px 0 28px;font-weight:900;line-height:.88;letter-spacing:-.045em;
+    font-size:clamp(54px,10.2vw,148px)
+  }
+  h1 span{display:block;overflow:hidden}
+  h1 span > i{display:block;font-style:normal;transform:translateY(110%);animation:rise .9s cubic-bezier(.16,1,.3,1) forwards}
+  h1 span:nth-child(2) > i{animation-delay:.1s}
+  h1 span:nth-child(3) > i{animation-delay:.2s}
+  h1 .stroke{-webkit-text-stroke:2px var(--ink);color:transparent}
+  h1 .blue{color:var(--accent)}
+  h1 .blue em{font-style:normal;background:var(--accent);color:var(--paper);padding:0 .12em}
+  @keyframes rise{to{transform:none}}
+  .lead{max-width:560px;font-size:clamp(15px,1.6vw,19px);line-height:1.95;color:#3d3e3c;margin:0 0 30px}
+  .lead b{background:linear-gradient(transparent 62%, rgba(255,85,61,.32) 62%);font-weight:700}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .btn{
+    position:relative;border:1px solid var(--ink);background:transparent;color:var(--ink);
+    padding:13px 20px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    cursor:pointer;transition:background .22s,color .22s,transform .22s;display:inline-flex;align-items:center;gap:10px
+  }
+  .btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;transform:translateY(-3px)}
+  .btn.solid{background:var(--ink);color:var(--paper)}
+  .btn .arrow{font-size:16px;line-height:0}
+  .hero-side{display:flex;flex-direction:column;align-items:flex-end;gap:34px;justify-self:end}
+  .seal{width:156px;height:156px;display:grid;place-items:center;position:relative;text-align:center}
+  .seal::before{content:"";position:absolute;inset:0;border:1px solid var(--ink);border-radius:50%}
+  .seal::after{content:"";position:absolute;inset:9px;border:1px dashed var(--red);border-radius:50%;animation:spin 24s linear infinite}
+  .seal b{font-family:var(--mono);font-size:10px;letter-spacing:.16em;line-height:1.9}
+  .seal .dot{position:absolute;inset:26px;border:1px solid var(--accent);border-radius:50%}
+  .seal .num{font-family:var(--mono);font-size:34px;font-weight:600;color:var(--accent);line-height:1}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .side-note{writing-mode:vertical-rl;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:var(--muted)}
+  .scroll-cue{
+    position:absolute;bottom:26px;right:clamp(20px,6vw,90px);font-family:var(--mono);font-size:10px;
+    letter-spacing:.2em;color:var(--muted);background:none;border:0;cursor:pointer;padding:8px 0
+  }
+  .scroll-cue::after{content:"↓";display:block;font-size:18px;margin-top:6px;color:var(--accent)}
+
+  /* ===== TICKER ===== */
+  .ticker{position:relative;z-index:1;background:var(--ink);color:var(--paper);overflow:hidden;border-block:1px solid var(--ink)}
+  .ticker-track{display:flex;width:max-content;animation:slide 28s linear infinite;font-family:var(--mono);font-size:11px;letter-spacing:.22em;padding:11px 0}
+  .ticker-track span{white-space:nowrap;padding:0 22px}
+  .ticker-track i{color:var(--red);font-style:normal}
+  @keyframes slide{to{transform:translateX(-50%)}}
+
+  /* ===== PROJECT ===== */
+  .section-head{position:relative;z-index:1;display:flex;align-items:baseline;gap:16px;padding:80px clamp(20px,6vw,90px) 0}
+  .section-head .num{font-family:var(--mono);font-size:clamp(46px,7vw,86px);font-weight:600;line-height:1;color:var(--accent)}
+  .section-head h2{font-size:clamp(20px,2.6vw,32px);margin:0;font-weight:800}
+  .section-head .rule{flex:1;height:1px;background:var(--ink)}
+  .project{
+    position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);
+    gap:clamp(30px,6vw,90px);align-items:center;padding:60px clamp(20px,6vw,90px) 100px
+  }
+  .preview-wrap{position:relative;padding:clamp(22px,4vw,44px);background:var(--ink);transition:transform .5s}
+  .preview-wrap:hover{transform:rotate(-.7deg)}
+  .preview-wrap::before,.preview-wrap::after{content:"";position:absolute;width:22px;height:22px;border:1px solid var(--red);z-index:3}
+  .preview-wrap::before{top:10px;right:10px;border-left:0;border-bottom:0}
+  .preview-wrap::after{bottom:10px;left:10px;border-top:0;border-right:0}
+  .mock{
+    position:relative;aspect-ratio:210/297;background:#fff;overflow:hidden;
+    background-image:repeating-linear-gradient(to bottom, transparent 0 12px, #c9d9f2 12px 13px);
+    transform:translateY(var(--par,0px));transition:transform .2s linear
+  }
+  .mock::before{
+    content:"";position:absolute;top:0;bottom:0;right:13%;width:1px;background:#e07b7b;
+    box-shadow:-4px 0 0 rgba(224,123,123,.4)
+  }
+  .mock .tile{
+    position:absolute;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.16);
+    background-size:cover;transition:transform .4s,filter .4s
+  }
+  .preview-wrap:hover .tile{transform:scale(1.04);filter:saturate(1.2)}
+  .t1{inset:9% 11% auto 43%;height:32%;background:linear-gradient(135deg,#2a4dff,#7fb0ff 55%,#d9e6ff)}
+  .t2{inset:45% 11% auto 43%;height:19%;background:linear-gradient(135deg,#ff553d,#ffb199)}
+  .t3{inset:67% 11% auto 43%;height:19%;background:linear-gradient(135deg,#15171c,#5d6473)}
+  .t4{inset:9% 9% auto 38%;height:77%;background:linear-gradient(160deg,#e7ecf5,#b7c6da 45%,#8fa4bf)}
+  .mock .small-label{
+    position:absolute;bottom:3%;left:5%;font-family:var(--mono);font-size:9px;letter-spacing:.15em;color:#9099a6
+  }
+  .stamp-live{
+    position:absolute;left:-18px;bottom:26px;background:var(--red);color:#fff;
+    font-family:var(--mono);font-size:10px;letter-spacing:.14em;padding:9px 13px;transform:rotate(-7deg);z-index:4
+  }
+  .project-info h3{margin:0 0 18px;font-size:clamp(30px,4.8vw,62px);line-height:1.08;letter-spacing:-.03em;font-weight:900}
+  .project-info .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--accent);margin-bottom:14px}
+  .desc{font-size:16px;line-height:2;color:#3d3e3c;max-width:560px;margin:0 0 24px}
+  dl.meta{display:grid;grid-template-columns:auto 1fr;margin:0 0 26px;border-top:1px solid var(--line);font-size:13px}
+  dl.meta dt,dl.meta dd{margin:0;padding:9px 0;border-bottom:1px solid var(--line)}
+  dl.meta dt{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--muted);padding-inline-end:20px}
+  .tags{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:28px}
+  .tags span{border:1px solid var(--line);padding:6px 10px;font-family:var(--mono);font-size:10px;letter-spacing:.04em}
+  .tags span:first-child{border-color:var(--accent);color:var(--accent)}
+
+  /* ===== NEXT SLOT ===== */
+  .next{
+    position:relative;z-index:1;margin:0 clamp(20px,6vw,90px) 100px;
+    border:1px dashed rgba(21,23,28,.5);padding:clamp(28px,5vw,54px);
+    display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap
+  }
+  .next h4{margin:0 0 8px;font-size:clamp(22px,3vw,38px);font-weight:800}
+  .next p{margin:0;color:var(--muted);font-size:14px}
+  .next .plus{font-family:var(--mono);font-size:clamp(50px,8vw,92px);line-height:.7;color:var(--accent)}
+
+  /* ===== FOOTER ===== */
+  footer{position:relative;z-index:1;border-top:1px solid var(--ink);padding:56px clamp(20px,6vw,90px) 30px}
+  .foot-top{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:24px}
+  .foot-top a:hover{color:var(--accent)}
+  .watermark{
+    font-size:clamp(48px,13.5vw,190px);font-weight:900;letter-spacing:-.06em;line-height:.9;
+    -webkit-text-stroke:1.5px var(--ink);color:transparent;white-space:nowrap;overflow:hidden;user-select:none
+  }
+  .foot-bottom{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:18px;font-family:var(--mono);font-size:10px;color:var(--muted)}
+
+  /* ===== MODAL ===== */
+  .modal{position:fixed;inset:0;z-index:150;background:rgba(12,14,18,.94);display:none;place-items:center;padding:16px}
+  .modal.open{display:grid}
+  .modal-box{width:min(1180px,97vw);height:min(90vh,940px);background:var(--paper);display:flex;flex-direction:column;border:1px solid var(--paper)}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-bottom:1px solid var(--ink);font-family:var(--mono);font-size:10px;letter-spacing:.12em}
+  .modal-head a:hover{color:var(--accent)}
+  .modal-head button{background:var(--ink);color:var(--paper);border:0;padding:7px 12px;font-family:var(--mono);font-size:10px;cursor:pointer}
+  .modal iframe{flex:1;width:100%;border:0;background:#fff}
+
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  @media (pointer:fine){
+    .cursor{
+      display:block;position:fixed;top:0;left:0;width:30px;height:30px;border:1px solid var(--accent);
+      border-radius:50%;pointer-events:none;z-index:140;mix-blend-mode:difference;
+      transition:width .22s,height .22s,background .22s
+    }
+    .cursor::before,.cursor::after{content:"";position:absolute;background:var(--accent)}
+    .cursor::before{left:50%;top:-9px;width:1px;height:48px;transform:translateX(-50%)}
+    .cursor::after{top:50%;left:-9px;height:1px;width:48px;transform:translateY(-50%)}
+    .cursor.hot{width:52px;height:52px;background:rgba(42,77,255,.12)}
+  }
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;padding-top:104px}
+    .hero-side{flex-direction:row;justify-content:space-between;align-items:center;justify-self:stretch;width:100%}
+    .seal{width:104px;height:104px}
+    .seal .num{font-size:23px}
+    .seal b{font-size:8px}
+    .side-note{writing-mode:horizontal-tb}
+    .project{grid-template-columns:1fr}
+    .preview-wrap{max-width:520px}
+    .scroll-cue{display:none}
+  }
+  @media (max-width:520px){
+    .topbar .mid{display:none}
+    h1{font-size:clamp(48px,14vw,80px)}
+    h1 .stroke{-webkit-text-stroke-width:1.4px}
+    .project-info h3{font-size:32px}
+    .btn{padding:11px 14px;font-size:10px}
+    .next .plus{display:none}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+    .ticker-track{animation:none}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#work">تخطَّ إلى المشاريع</a>
+<div class="dots" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"></div>
+
+<header class="topbar">
+  <b>MyWorkHub<span style="color:var(--red)">.</span></b>
+  <span class="mid">أرشيف رقمي · إصدار 001 / 2026</span>
+  <a href="https://github.com/khalidsaif912" target="_blank" rel="noopener">@khalidsaif912 ↗</a>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><i></i> ورشة تصميم رقمية — الطبعة الأولى</div>
+      <h1 aria-label="أُعيد تعريف الورقة رقمياً">
+        <span><i>أُعيد تعريف</i></span>
+        <span><i class="stroke">الورقة</i></span>
+        <span><i class="blue">رقمياً<em>.</em></i></span>
+      </h1>
+      <p class="lead">أبني أدوات صغيرة بدقّة كبيرة. هذا الأرشيف يجمع التجارب التي تبدأ من سؤال بسيط: <b>كيف تبدو الورقة قبل أن تلمسها الطابعة؟</b> لا واجهات مكررة، ولا قوالب جاهزة — فقط تفاصيل تُضبط بالملليمتر.</p>
+      <div class="hero-actions">
+        <a class="btn solid" href="#work">استعرض الطبعة الأولى <span class="arrow">↙</span></a>
+        <button class="btn" type="button" data-open-app>شغّل المعاينة الحية <span class="arrow">↗</span></button>
+      </div>
+    </div>
+    <aside class="hero-side">
+      <div class="seal" aria-hidden="true">
+        <span class="dot"></span>
+        <span><b>PROJECT<br><span class="num">01</span><br>PRINT READY</b></span>
+      </div>
+      <div class="side-note">مصمَّم بدقّة · مُختبر بالمتصفح</div>
+    </aside>
+    <button class="scroll-cue" type="button" data-scroll>انزل قليلاً</button>
+  </section>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>خيوط <i>✳</i> نقاط <i>✳</i> مربعات <i>✳</i> هوامش <i>✳</i> طباعة حقيقية <i>✳</i> 210 × 297 مم <i>✳</i> تصميم بالملليمتر <i>✳</i></span>
+      <span>خيوط <i>✳</i> نقاط <i>✳</i> مربعات <i>✳</i> هوامش <i>✳</i> طباعة حقيقية <i>✳</i> 210 × 297 مم <i>✳</i> تصميم بالملليمتر <i>✳</i></span>
+    </div>
+  </div>
+
+  <div class="section-head reveal">
+    <span class="num">01</span>
+    <h2>الأعمال / الطبعة الأولى</h2>
+    <span class="rule"></span>
+  </div>
+
+  <section class="project" id="work">
+    <div class="preview-wrap reveal" id="preview" aria-label="معاينة مصغّرة للمحرر">
+      <div class="mock">
+        <span class="t4 tile"></span>
+        <span class="t1 tile"></span>
+        <span class="t2 tile"></span>
+        <span class="t3 tile"></span>
+        <span class="small-label">A4 · 210 × 297 MM · LIVE PREVIEW</span>
+      </div>
+      <span class="stamp-live">LIVE / 01</span>
+    </div>
+
+    <div class="project-info reveal">
+      <div class="kicker">أداة ويب / HTML واحد / 2026</div>
+      <h3>استوديو الورق<br>وتخطيط الصور</h3>
+      <p class="desc">محرّر صفحات يجمع إعدادات الورق، أنماط التسطير والشبكات، توزيع الصور، والتحكم الدقيق في الطباعة داخل ملف HTML واحد. كل تعديل يظهر فوراً، وكل مليمتر له معنى.</p>
+      <dl class="meta">
+        <dt>الحالة</dt><dd>جاهز للتجربة</dd>
+        <dt>النوع</dt><dd>أداة إنتاجية / تصميم طباعي</dd>
+        <dt>اللغة</dt><dd>عربية RTL + واجهة إنجليزية تقنية</dd>
+        <dt>الطباعة</dt><dd>@page ديناميكي بأبعاد الورقة الحقيقية</dd>
+      </dl>
+      <div class="tags">
+        <span>A3 — A6 / LETTER / LEGAL / B5</span><span>10 PAPER STYLES</span><span>CANVAS GRIDS</span>
+        <span>DRAG / ROTATE / RESIZE</span><span>UNDO / REDO</span><span>JSON SAVE</span>
+      </div>
+      <div class="hero-actions">
+        <button class="btn solid" type="button" data-open-app>افتح المعاينة <span class="arrow">↗</span></button>
+        <a class="btn" href="a4-image-page-professional.html" target="_blank" rel="noopener">الملف مباشرة <span class="arrow">↗</span></a>
+        <a class="btn" href="https://github.com/khalidsaif912/MyWorkHub" target="_blank" rel="noopener">الكود <span class="arrow">↗</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="next reveal" aria-label="مساحة للمشروع القادم">
+    <div>
+      <h4>المشروع 02 — مساحة محجوزة</h4>
+      <p>الفكرة لم تُكتب بعد. ربما تكون أداة، أو تجربة بصرية، أو شيئاً لا يصنّف.</p>
+    </div>
+    <span class="plus" aria-hidden="true">+</span>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-top">
+    <span>صُنع بحبر رقمي · لا قالب مستعار</span>
+    <a href="https://github.com/khalidsaif912/MyWorkHub" target="_blank" rel="noopener">المستودع على GitHub ↗</a>
+    <a href="#top">العودة للأعلى ↑</a>
+  </div>
+  <div class="watermark" aria-hidden="true">MyWorkHub</div>
+  <div class="foot-bottom"><span>© 2026 — أرشيف متنامٍ</span><span>01 / 01 منشور حتى الآن</span></div>
+</footer>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="المعاينة الحية">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>المعاينة الحية — A4 Studio</span>
+      <span><a href="a4-image-page-professional.html" target="_blank" rel="noopener">فتح في تبويب جديد ↗</a></span>
+      <button type="button" id="closeModal">إغلاق ✕</button>
+    </div>
+    <iframe id="appFrame" title="A4 Paper Designer" loading="lazy"></iframe>
+  </div>
+</div>
+
+<script>
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // المؤشر الدقيق
+  if (matchMedia('(pointer: fine)').matches && !reduce) {
+    const cur = $('.cursor');
+    let tx = innerWidth / 2, ty = innerHeight / 2, x = tx, y = ty;
+    addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; }, { passive: true });
+    (function follow(){
+      x += (tx - x) * .18; y += (ty - y) * .18;
+      cur.style.transform = 'translate(' + x + 'px,' + y + 'px) translate(-50%,-50%)';
+      requestAnimationFrame(follow);
+    })();
+    document.addEventListener('pointerover', e => {
+      cur.classList.toggle('hot', !!e.target.closest('a,button,.preview-wrap'));
+    });
+  }
+
+  // ظهور العناصر عند التمرير
+  const reveals = $$('.reveal');
+  if ('IntersectionObserver' in window && !reduce) {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: .14 });
+    reveals.forEach(el => io.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('in'));
+  }
+
+  // إزاحة بسيطة للمعاينة أثناء التمرير
+  if (!reduce) {
+    const preview = $('#preview');
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const r = preview.getBoundingClientRect();
+        const off = (r.top + r.height / 2 - innerHeight / 2) * .035;
+        preview.style.setProperty('--par', off.toFixed(1) + 'px');
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
+  // زر النزول
+  $$('[data-scroll]').forEach(b => b.addEventListener('click', () => {
+    $('#work').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }));
+
+  // نافذة المعاينة الحية
+  const modal = $('#modal'), frame = $('#appFrame');
+  function openApp() {
+    frame.src = 'a4-image-page-professional.html';
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    $('#closeModal').focus();
+  }
+  function closeApp() {
+    modal.classList.remove('open');
+    frame.src = 'about:blank';
+    document.body.style.overflow = '';
+  }
+  $$('[data-open-app]').forEach(b => b.addEventListener('click', openApp));
+  $('#closeModal').addEventListener('click', closeApp);
+  modal.addEventListener('click', e => { if (e.target === modal) closeApp(); });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) closeApp(); });
+</script>
+</body>
+</html>
